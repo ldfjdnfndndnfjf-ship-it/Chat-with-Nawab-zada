@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nawab ZADA Chat Room</title>
+    <style>
+        .admin-box { border: 2px solid red; padding: 10px; margin-top: 20px; display: none; }
+    </style>
+</head>
+<body>
+    <div id="login-screen">
+        <h2>🦅 Nawab ZADA Private Room</h2>
+        <input id="userName" placeholder="Enter Your Real Name">
+        <button onclick="login()">Enter Chat</button>
+    </div>
+
+    <div id="chat-screen" style="display:none;">
+        <ul id="messages"></ul>
+        <input id="msg" placeholder="Message">
+        <button onclick="send()">Send</button>
+        
+        <br><br>
+        <input type="password" id="adminPass" placeholder="Admin Password">
+        <button onclick="checkAdmin()">Open Admin Logs</button>
+        <div id="adminArea" class="admin-box">
+            <h3>Admin Logs (IP Tracking)</h3>
+            <div id="ipLogs"></div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let myName = "";
+
+        function login() {
+            myName = document.getElementById('userName').value;
+            if(myName) { document.getElementById('login-screen').style.display = 'none'; document.getElementById('chat-screen').style.display = 'block'; }
+        }
+
+        function send() {
+            socket.emit('chat message', {name: myName, msg: document.getElementById('msg').value});
+        }
+
+        socket.on('chat message', (data) => {
+            document.getElementById('messages').innerHTML += `<li><b>${data.name}</b>: ${data.msg}</li>`;
+            document.getElementById('ipLogs').innerHTML += `<p>${data.name}: ${data.msg} -> IP: ${data.ip}</p>`;
+        });
+
+        function checkAdmin() {
+            if(document.getElementById('adminPass').value === "NawabZada123") {
+                document.getElementById('adminArea').style.display = 'block';
+            } else { alert("Wrong Password!"); }
+        }
+    </script>
+</body>
+</html>
