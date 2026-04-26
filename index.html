@@ -1,36 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Nawab ZADA Chat</title>
+    <title>Nawab ZADA HACKER 🦅 Chat</title>
     <style>
-        body { font-family: sans-serif; background: #e5ddd5; }
-        #chat-screen { max-width: 500px; margin: auto; background: white; padding: 20px; }
-        .msg-box { border-bottom: 1px solid #ccc; padding: 5px; }
-        .admin-area { position: fixed; bottom: 10px; right: 10px; background: #333; color: #fff; padding: 10px; border-radius: 10px; max-height: 200px; overflow-y: scroll; }
-        .input-area { display: flex; margin-top: 10px; }
+        body { background: #0a0a0a; color: #00ff00; font-family: 'Courier New', monospace; margin: 0; }
+        #chat-screen { width: 100vw; height: 100vh; display: flex; flex-direction: column; }
+        #messages { flex: 1; overflow-y: auto; padding: 15px; }
+        
+        /* Chat Bubbles */
+        .msg { padding: 10px; margin: 5px; border-radius: 10px; max-width: 70%; word-wrap: break-word; }
+        .sent { background: #004d00; align-self: flex-end; margin-left: auto; }
+        .received { background: #333; align-self: flex-start; }
+        
+        /* Admin Section */
+        .admin-panel { background: #111; padding: 10px; border-top: 2px solid #00ff00; }
+        input, button { background: #000; color: #00ff00; border: 1px solid #00ff00; padding: 8px; }
     </style>
 </head>
 <body>
-    <div id="login-screen">
-        <h2>🦅 CHAT WITH NAWAB ZADA</h2>
-        <input id="userName" placeholder="Real Name">
-        <button onclick="login()">Join</button>
+    <div id="login">
+        <h2>🦅 ENTER IDENTIFICATION</h2>
+        <input id="userName" placeholder="Your Real Name">
+        <button onclick="login()">SECURE JOIN</button>
     </div>
 
     <div id="chat-screen" style="display:none;">
-        <h3>🦅 Chat with Nawab ZADA</h3>
-        <div id="messages" style="height: 300px; overflow-y: scroll;"></div>
-        <div class="input-area">
-            <input id="msg" placeholder="Type a message...">
-            <button onclick="send()">Send</button>
-        </div>
-    </div>
-
-    <div class="admin-area">
-        <input type="password" id="adminPass" placeholder="Admin Pass">
-        <button onclick="checkAdmin()">Open Logs</button>
-        <div id="adminArea" style="display:none;">
-            <div id="ipLogs"></div>
+        <div id="messages"></div>
+        <div class="admin-panel">
+            <input id="msg" placeholder="Type message...">
+            <button onclick="send()">SEND</button>
+            <br><br>
+            <input type="password" id="adminPass" placeholder="Admin Pass">
+            <button onclick="checkAdmin()">TRACK LOGS</button>
+            <div id="adminArea" style="display:none;"></div>
         </div>
     </div>
 
@@ -41,23 +43,24 @@
 
         function login() {
             myName = document.getElementById('userName').value;
-            if(myName) { document.getElementById('login-screen').style.display = 'none'; document.getElementById('chat-screen').style.display = 'block'; }
+            if(myName) { document.getElementById('login').style.display = 'none'; document.getElementById('chat-screen').style.display = 'flex'; }
         }
 
         function send() {
             let msg = document.getElementById('msg').value;
-            // Auto-filter (Bad words/Links)
-            if(msg.includes("http") || msg.toLowerCase().includes("gali")) {
-                alert("Nawab ZADA Security: Message blocked!");
-                return;
-            }
             socket.emit('chat message', {name: myName, msg: msg});
             document.getElementById('msg').value = "";
         }
 
         socket.on('chat message', (data) => {
-            document.getElementById('messages').innerHTML += `<div class="msg-box"><b>${data.name}</b>: ${data.msg}</div>`;
-            document.getElementById('ipLogs').innerHTML += `<p>${data.name}: ${data.msg} (IP: ${data.ip}) <button onclick="this.parentElement.remove()">Block</button></p>`;
+            const isMe = data.name === myName;
+            const div = document.createElement('div');
+            div.className = `msg ${isMe ? 'sent' : 'received'}`;
+            div.innerHTML = `<b>${data.name}</b>: ${data.msg}`;
+            document.getElementById('messages').appendChild(div);
+            
+            // Log to Admin (IP logger)
+            document.getElementById('adminArea').innerHTML += `<p>${data.name} [${data.ip}]: ${data.msg}</p>`;
         });
 
         function checkAdmin() {
