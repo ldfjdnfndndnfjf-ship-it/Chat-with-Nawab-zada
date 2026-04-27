@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Nawab ZADA VIP Chat</title>
+    <title>Nawab ZADA VIP Chat Room</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { background: #0a0a0a; color: #00ff00; font-family: sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; }
@@ -17,6 +17,7 @@
         #input-area { background: #111; padding: 10px; display: flex; gap: 5px; }
         input, button { background: #000; color: #00ff00; border: 1px solid #00ff00; padding: 10px; border-radius: 5px; }
         #msg { flex: 1; }
+        .admin-area { font-size: 0.8em; margin-top: 5px; background: #1a1a1a; padding: 5px; }
     </style>
 </head>
 <body>
@@ -36,7 +37,7 @@
         <div style="padding:5px;">
             <input type="password" id="adminPass" placeholder="Admin Pass" style="width:40%">
             <button onclick="checkAdmin()">TRACK LOGS</button>
-            <div id="adminArea" style="display:none; font-size:0.8em; margin-top:5px;"></div>
+            <div id="adminArea" class="admin-area" style="display:none;"></div>
         </div>
     </div>
 
@@ -66,13 +67,17 @@
             document.getElementById('messages').appendChild(div);
             document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
             
-            document.getElementById('adminArea').innerHTML += `<p>${data.name} [${data.ip}]: ${data.msg}</p>`;
+            // Admin Log with Block Button
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `${data.name} [${data.ip}]: ${data.msg} 
+                                  <button onclick="socket.emit('block-ip', '${data.ip}'); this.parentElement.remove();">BLOCK</button>`;
+            document.getElementById('adminArea').appendChild(logEntry);
         });
 
         function checkAdmin() {
             if(document.getElementById('adminPass').value === "NawabZada123") {
                 document.getElementById('adminArea').style.display = 'block';
-            }
+            } else { alert("Wrong Password!"); }
         }
     </script>
 </body>
