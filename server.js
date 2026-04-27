@@ -2,34 +2,35 @@ const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
+const path = require('path');
 
-// Blacklist array (yahan block kiye gaye IP save honge)
 let blockedIPs = [];
 
+// Static folder define karna zaroori hai
+app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 io.on('connection', (socket) => {
-    // Real IP header (Vercel ke liye)
     const ip = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
 
-    // Agar IP block list mein hai to connection reject
     if (blockedIPs.includes(ip)) {
         socket.disconnect();
         return;
     }
 
     socket.on('chat message', (data) => {
-        // Auto-Remove Spam/Links
-        if (data.msg.includes("http") || data.msg.length > 200) {
-            console.log("Spam detected from: " + ip);
-            return; // Msg process nahi hoga
-        }
-
+        if (data.msg.includes("http") || data.msg.length > 200) return;
         io.emit('chat message', { name: data.name, msg: data.msg, ip: ip });
     });
 
-    // Block logic (Admin se command aayi to)
     socket.on('block-ip', (ipToBlock) => {
         blockedIPs.push(ipToBlock);
     });
 });
 
-http.listen(3000);
+// Vercel ke liye port process.env.PORT zaroori hai
+const PORT = process.env.PORT || 3000;
+http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
